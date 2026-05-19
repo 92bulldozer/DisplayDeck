@@ -1,12 +1,144 @@
-﻿<Window x:Class="DisplayDeck.MainWindow"
+<ui:FluentWindow x:Class="DisplayDeck.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:local="clr-namespace:DisplayDeck"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="DisplayDeck"
+        Height="900" Width="660"
+        MinHeight="420" MinWidth="480"
+        WindowStartupLocation="Manual"
+        ResizeMode="CanResize"
+        ExtendsContentIntoTitleBar="True"
+        WindowBackdropType="Mica"
+        Icon="pack://application:,,,/appicon.ico">
 
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ui:TitleBar Grid.Row="0" Title="DisplayDeck — 해상도 전환기">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="pack://application:,,,/appicon.ico"/>
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
+
+        <!-- 본문 전체를 스크롤 가능하게 — 창이 작아도 내용이 잘리지 않음 -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                      Padding="0,0,4,0">
+            <StackPanel Margin="20,8,20,16">
+
+                <!-- 모니터 선택 (배치도) -->
+                <Grid Margin="2,0,0,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <ui:TextBlock Grid.Column="0"
+                                  Text="대상 모니터  ·  배치도에서 클릭"
+                                  FontTypography="Body"
+                                  Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                  VerticalAlignment="Center"
+                                  TextTrimming="CharacterEllipsis"/>
+                    <ui:ToggleSwitch Grid.Column="1" x:Name="TopmostToggle" Content="항상 위"
+                                     Margin="0,0,12,0" VerticalAlignment="Center"
+                                     ToolTip="창을 항상 다른 창 위에 표시"
+                                     Checked="Topmost_Changed" Unchecked="Topmost_Changed"/>
+                    <ui:Button Grid.Column="2" Content="식별" Height="32"
+                               FontSize="13" Padding="14,0"
+                               ToolTip="각 모니터 화면에 이름을 표시합니다"
+                               Click="Identify_Click"/>
+                </Grid>
+                <ui:Card Padding="6">
+                    <Canvas x:Name="LayoutCanvas" Height="128" Background="Transparent"
+                            Loaded="LayoutCanvas_Loaded"
+                            SizeChanged="LayoutCanvas_SizeChanged"/>
+                </ui:Card>
+
+                <!-- 해상도 프리셋 -->
+                <ui:TextBlock Text="해상도 프리셋  ·  클릭하면 즉시 적용"
+                              FontTypography="Body"
+                              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                              Margin="2,18,0,8"/>
+                <WrapPanel x:Name="PresetPanel"/>
+
+                <!-- 현재 상태 + DPI 배율 -->
+                <ui:Card Margin="0,12,0,0" Padding="16,14">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <ui:SymbolIcon Symbol="Desktop24" FontSize="20"
+                                               VerticalAlignment="Center"/>
+                                <ui:TextBlock Text="해상도" Margin="10,0,0,0" FontTypography="Body"
+                                              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                              VerticalAlignment="Center"/>
+                                <ui:TextBlock x:Name="CurrentText" Text="—" Margin="10,0,0,0"
+                                              FontTypography="BodyStrong"
+                                              Foreground="{DynamicResource SystemFillColorSuccessBrush}"
+                                              VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                <ui:TextBlock Text="배율" FontTypography="Body"
+                                              Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                              VerticalAlignment="Center"/>
+                                <ui:TextBlock x:Name="DpiCurrentText" Text="—" Margin="10,0,0,0"
+                                              FontTypography="BodyStrong"
+                                              Foreground="{DynamicResource SystemFillColorSuccessBrush}"
+                                              VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+                        <ui:TextBlock Text="디스플레이 배율(DPI)  ·  클릭하면 즉시 적용"
+                                      FontTypography="Caption"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                      Margin="0,14,0,8"/>
+                        <WrapPanel x:Name="DpiPanel"/>
+                    </StackPanel>
+                </ui:Card>
+
+                <!-- 커스텀 해상도 추가 (맨 아래) -->
+                <ui:Card Margin="0,12,0,0" Padding="16,14">
+                    <StackPanel>
+                        <ui:TextBlock Text="커스텀 해상도 추가" FontTypography="Body"
+                                      Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                      Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal">
+                            <ui:TextBox x:Name="WidthBox" Width="110" Height="40" FontSize="15"
+                                        PlaceholderText="가로" KeyDown="CustomBox_KeyDown"/>
+                            <ui:TextBlock Text="×" FontSize="20" Margin="10,0"
+                                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                                          VerticalAlignment="Center"/>
+                            <ui:TextBox x:Name="HeightBox" Width="110" Height="40" FontSize="15"
+                                        PlaceholderText="세로" KeyDown="CustomBox_KeyDown"/>
+                            <ui:Button Content="추가" Icon="{ui:SymbolIcon Add24}"
+                                       Appearance="Primary" Margin="12,0,0,0"
+                                       Height="40" FontSize="15" Padding="16,0"
+                                       Click="AddCustom_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </ui:Card>
+
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- 상태 표시줄 (항상 하단 고정) -->
+        <Border Grid.Row="2" Background="{DynamicResource ControlFillColorDefaultBrush}"
+                BorderBrush="{DynamicResource DividerStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0" Padding="20,10">
+            <ui:TextBlock x:Name="StatusText"
+                          Text="배치도에서 모니터를 고르고 해상도 버튼을 누르세요."
+                          FontTypography="Caption" TextWrapping="Wrap"
+                          Foreground="{DynamicResource TextFillColorSecondaryBrush}"/>
+        </Border>
     </Grid>
-</Window>
+</ui:FluentWindow>
