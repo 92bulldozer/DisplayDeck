@@ -20,13 +20,12 @@ public static class PresetStore
     /// <summary>첫 실행 시 채워 넣는 기본 프리셋 (POS 테스트 흔한 해상도).</summary>
     private static readonly Resolution[] Defaults =
     {
-        new(1920, 1080),
-        new(1600, 900),
-        new(1366, 768),
-        new(1280, 1024),
-        new(1280, 720),
         new(1024, 768),
-        new(800, 600),
+        new(1280, 800),
+        new(1280, 1024),
+        new(1366, 768),
+        new(1920, 1080),
+        new(2560, 1600),
     };
 
     private static readonly string Dir = Path.Combine(
