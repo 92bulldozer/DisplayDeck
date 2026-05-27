@@ -43,7 +43,7 @@ public static class PresetStore
                 var json = File.ReadAllText(FilePath);
                 var list = JsonSerializer.Deserialize<List<Resolution>>(json);
                 if (list is not null)
-                    return list;
+                    return Sort(list);
             }
         }
         catch
@@ -51,9 +51,18 @@ public static class PresetStore
             // 손상된 파일은 무시하고 기본값으로 복구
         }
 
-        var defaults = Defaults.ToList();
+        var defaults = Sort(Defaults.ToList());
         Save(defaults);
         return defaults;
+    }
+
+    /// <summary>가로 → 세로 순으로 정렬 (사이즈별 자동 정렬).</summary>
+    public static List<Resolution> Sort(List<Resolution> presets)
+    {
+        presets.Sort((a, b) => a.Width != b.Width
+            ? a.Width.CompareTo(b.Width)
+            : a.Height.CompareTo(b.Height));
+        return presets;
     }
 
     public static void Save(List<Resolution> presets)

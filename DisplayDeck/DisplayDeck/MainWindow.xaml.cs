@@ -526,6 +526,7 @@ public partial class MainWindow : FluentWindow
         }
 
         _presets.Add(res);
+        PresetStore.Sort(_presets);
         PresetStore.Save(_presets);
         WidthBox.Clear();
         HeightBox.Clear();
